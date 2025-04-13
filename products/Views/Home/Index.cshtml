@@ -1,0 +1,39 @@
+﻿@model List<SalesOrder>;
+
+
+<div class="d-flex flex-column gap-5">
+    <div class="p-5 d-flex flex-row justify-content-between">
+        <div class="fs-5 fw-bolder">Sales Orders</div>
+        <div class="">
+
+            <a asp-controller="Order" asp-action="Index" class="text-decoration-none">
+                <div class="px-2 py-1 btn-outline-primary border border-2 border-primary rounded-2 text-decoration-none">
+                    <i class="bi bi-plus fw-bold"></i> <span class="fs-6" >New</span>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div>
+        <table class="table table-borderless table-striped">
+            <thead class="bg-light fw-semibold">
+                <tr>
+                    <th scope="col">Order Id</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Customer Id & Name</th>
+                    <th scope="col">Net Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var obj in Model)
+                {
+                    <tr>
+                        <th scope="row">@obj.OrderId</th>
+                        <td>@obj.OrderDate</td>
+                        <td>@obj.CustomerId</td>
+                        <td>@obj.Total</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+</div>
+</div>
