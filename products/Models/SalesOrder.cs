@@ -2,11 +2,12 @@
 {
     public class SalesOrder
     {
-        public string OrderId { get; set; }
+        public Guid Orderid { get; set; }
 
-        public string CustomerId { get; set; }
+        public string CustomerName { get; set; }
+
         public DateOnly OrderDate { get; set; }
 
-        public decimal Total { get; set; }
+        public decimal NetValue { get; set; }
     }
 }

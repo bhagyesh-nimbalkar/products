@@ -1,4 +1,4 @@
-﻿@model List<SalesOrder>;
+﻿@model List<SalesOrder>
 
 
 <div class="d-flex flex-column gap-5">
@@ -26,12 +26,13 @@
             <tbody>
                 @foreach(var obj in Model)
                 {
-                    <tr>
-                        <th scope="row">@obj.OrderId</th>
-                        <td>@obj.OrderDate</td>
-                        <td>@obj.CustomerId</td>
-                        <td>@obj.Total</td>
-                    </tr>
+                    <tr style="cursor:pointer;" onclick="location.href='@Url.Action("OrderUpdate", new { id = obj.Orderid })'">
+                    <td>@obj.Orderid</td>
+                    <td>@obj.OrderDate</td>
+                    <td>@obj.CustomerName</td>
+                    <td>@obj.NetValue</td>
+                   </tr>
+                  
                 }
             </tbody>
         </table>

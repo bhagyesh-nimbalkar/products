@@ -18,22 +18,28 @@ namespace products.Controllers
 
         public IActionResult Index()
         {
-           List<Orders> orders = _context.Orders.ToList();
-            List<SalesOrder> saleOrder = [];
+            List<Order> orders = _context.Orders.ToList();
+            List<SalesOrder> saleslist = [];
             foreach(var obj in orders)
             {
-                List<ProductEntry> list = _context.ProductEntries.Where(p => p.OrderId == obj.OrderId).ToList();
-                DateOnly Date = list[0].OrderDate;
-                decimal NetVal = list.Sum(x => x.Total);
-                saleOrder.Add(new SalesOrder
+                string customerName = _context.Customers
+                    .Where(c => c.CustomerId == obj.CustomerId)
+                    .Select(c => c.CustomerName)
+                    .FirstOrDefault();
+                decimal TotalNetValue = _context.OrderItems
+                    .Where(oi => oi.OrderId == obj.OrderId)
+                    .Sum(oi => oi.Total);
+
+
+                saleslist.Add(new SalesOrder
                 {
-                    OrderId = obj.OrderId,
-                    CustomerId = obj.CustomerId,
-                    Total = NetVal,
-                    OrderDate = Date,
+                    Orderid = obj.OrderId,
+                    CustomerName = customerName,
+                    OrderDate = obj.PurchaseOrderDate,
+                    NetValue = TotalNetValue
                 });
             }
-            return View(saleOrder);
+            return View(saleslist);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

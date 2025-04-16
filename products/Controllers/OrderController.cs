@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using products.Data;
 using products.Models;
 
@@ -17,31 +18,15 @@ namespace products.Controllers
 
         public IActionResult Index()
         {
-            CustomerID customerIdModel = new CustomerID
-            {
-                CustomerNames = new[] { "DF09 - DR Distributer", "V097 - Vigneya Industries",
-                    "T146 - Tropical Nortec", "U014 - Ukay Industries", "S436 - Shreeji IMPEX", "B249 - B. R. Enterprises"},
-                PurchaseId = "ORD"+Guid.NewGuid().ToString().Substring(30)
-            };
+            List<Customer> customerlist = _context.Customers.ToList();
+            List<Product> productlist = _context.Products.ToList();
 
-            ProductList productlist = new ProductList
+            CustomerProductCombinedView combinedView = new CustomerProductCombinedView
             {
-                ProductNames = new[] { 
-                    new Product{ProductName="BRZ06 - Revelol 25H Tablets",MRP=83},
-                    new Product{ProductName="GOYO3 - 100 Tablets",MRP=250},
-                    new Product{ProductName="JMT01",MRP=67},
-                    new Product{ProductName="APZ01 - Folitrax Tab 5",MRP=105},
-                    new Product{ProductName="EHL01 - Solvin Nasal Spray",MRP=78},
-                    new Product{ProductName="FND05 - Zerodol SP 100/15/325",MRP=122}
-                }
+                customerlist = customerlist,
+                productlist = productlist
             };
-
-            var viewModel = new CustomerProductViewModel
-            {
-                Customer = customerIdModel,
-                Products = productlist,
-            };
-            return View(viewModel);
+            return View(combinedView);
         }
 
         [HttpPost]
@@ -56,21 +41,28 @@ namespace products.Controllers
 
 
             if (productList==null) return BadRequest("No products received.");
-            string OrderId = productList[0].OrderId;
             string CustomerId = productList[0].CustomerId;
+            string PurchaseId = productList[0].PurchaseId;
+            DateOnly orderDate = DateOnly.Parse(productList[0].OrderDate.ToString());
 
-            _context.Orders.Add(new Orders { OrderId = OrderId, CustomerId = CustomerId });
-            _context.ProductEntries.AddRange(productList.Select(p => new ProductEntry
+            EntityEntry<Order> result = _context.Orders.Add(new Order
             {
-                OrderId = OrderId,
-                ProductName = p.ProductName,
-                MRP = p.MRP,
+                CustomerId = Guid.Parse(CustomerId),
+                PurchaseOrderNo = PurchaseId,
+                PurchaseOrderDate = orderDate,
+                Status="Active",
+            });
+
+            _context.OrderItems.AddRange(productList.Select(p => new OrderItem
+            {
+                OrderId = result.Entity.OrderId,
+                ProductId = Guid.Parse(p.ProductId),
                 Qty = p.Qty,
                 Total = p.Total,
-                OrderDate=p.OrderDate
+                Status="Active"
             }));
             _context.SaveChanges();
-            // Redirect or return success
+            //// Redirect or return success
             return RedirectToAction("Index","Home");
         }
 

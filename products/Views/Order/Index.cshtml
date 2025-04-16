@@ -1,4 +1,4 @@
-﻿@model CustomerProductViewModel
+﻿@model CustomerProductCombinedView;
 
 <div class="p-3">
 	<div class="d-flex flex-row  align-items-center gap-3 mb-5">
@@ -8,49 +8,50 @@
 		<h5 class="mt-2 fw-bolder">New Order</h5>
 	</div>
 	<form asp-action="SubmitOrder" method="post">
-	<div class="card shadow-sm">
-		<div class="card-body p-0">
-			<div class="p-3">
-			<div class="d-flex flex-column gap-3">
-				<div>
-					<h3>Customer Details</h3>
+		<div class="card shadow-sm">
+			<div class="card-body p-0">
+				<div class="p-3">
+					<div class="d-flex flex-column gap-3">
+						<div>
+							<h3>Customer Details</h3>
+						</div>
+						<div class="d-flex gap-5">
+							<div>
+								<label>Customer ID & Name</label>
+								<input class="form-control" list="customerOptions" id="customerId" name="productSearch" placeholder="Customer ID & Name">
+								<datalist id="customerOptions">
+									@foreach(var obj in Model.customerlist)
+									{
+										<option value="@obj.CustomerName"></option>
+									}
+								</datalist>
+							</div>
+							<div >
+								<label>Purchase order no (PO)</label>
+								<input type="text" class="form-control" id="purchaseId" placeholder="Purchase order no (PO)">
+							</div>
+							<div>
+								<label>Purchase order date</label>
+								<input  type="date" class="form-control" id="datePicker" placeholder="name@example.com">
+							</div>
+						</div>
+					</div>
 				</div>
-				<div class="d-flex gap-5">
+				<hr />
+				<div class="p-3 d-flex gap-lg-5">
 					<div>
-						<label>Customer ID & Name</label>
-					<select class="form-select" aria-label="Customer ID & Name" id="CustomerId">
-						@foreach(var obj in Model.Customer.CustomerNames)
-						{
-							<option value=@obj>@obj</option>
-						}
-					</select>
-				 </div>
-					<div >
-						<label>Purchase order no (PO)</label>
-						<input value="@Model.Customer.PurchaseId" type="text" class="form-control" id="PurchaseId" placeholder="Purchase order no (PO)" readonly>
+						<h3>Product Details</h3>
 					</div>
-					<div>
-						<label>Purchase order date</label>
-						<input  type="date" class="form-control" id="datePicker" placeholder="name@example.com">
-					</div>
-				 </div>
-			 </div>
-			 </div>
-			 <hr />
-			 <div class="p-3 d-flex gap-lg-5">
-				 <div>
-					<h3>Product Details</h3>
-				 </div>
 					<div class="d-flex gap-3">
-					<div class="d-flex align-items-center">
-						<i class="bi bi-search text-secondary" style="transform:translateX(25px) "></i>
-						<input  class="form-control" list="productOptions" style="padding-left:35px; min-width:400px;" id="productSearch" name="productSearch" placeholder="Search product...">
-						<datalist id="productOptions">
-							@foreach (var product in Model.Products.ProductNames)
-							{
-								<option value="@product.ProductName"></option>
-							}
-						</datalist>
+						<div class="d-flex align-items-center">
+							<i class="bi bi-search text-secondary" style="transform:translateX(25px) "></i>
+							<input  class="form-control" list="productOptions" style="padding-left:35px; min-width:400px;" id="productSearch" name="productSearch" placeholder="Search product...">
+							<datalist id="productOptions">
+								@foreach(var obj in Model.productlist)
+								{
+									<option value="@obj.ProductName"></option>
+								}
+							</datalist>
 					</div>
 					<div class="d-flex align-items-center">
 						<input type="number" id="QtyNumber" class="form-control border border-1 shadow-sm" style="max-width:100px;" placeholder="Qty">
@@ -62,6 +63,7 @@
 			 </div>
 			<div id="productTable"class="px-5">
 			</div>
+			<input type="hidden" id="ProductId" name="ProductId" value=""/>
 			<input type="hidden" id="ProductListJson" name="ProductListJson" />
 			<button type="submit" class="btn btn-success mt-3 ms-5 mb-5">Save</button>
 		</div>
@@ -72,12 +74,23 @@
 @section Scripts {
 	<script>
 		const allProducts = [
-			{ProductName:"BRZ06 - Revelol 25H Tablets",MRP:83},
-			{ProductName:"GOYO3 - 100 Tablets",MRP:250},
-			{ProductName:"JMT01",MRP:67},
-			{ProductName:"APZ01 - Folitrax Tab 5",MRP:105},
-			{ProductName:"EHL01 - Solvin Nasal Spray",MRP:78},
-			{ProductName:"FND05 - Zerodol SP 100/15/325",MRP:122}
+			{ProductName:"BRZ06 - Revelol 25H Tablets",MRP:83,ProductId:"0196358d-9171-711c-a649-8e0c1174012b"},
+			{ProductName:"GOY03 - 100 Tablets",MRP:250,ProductId:"0196358d-91a8-7ac5-9616-e40ec8433836"},
+			{ProductName:"JMT01 - SAAZ(JMT01)/ 10s",MRP:67,ProductId:"0196358d-91a8-743f-8d91-0ca95fe3a3bd"},
+			{ProductName:"JMU01 - SAAZ Ds (JMU01)/ 10s",MRP:155,ProductId:"0196358d-91a8-74f9-9c4b-74492f1f4b76"},
+			{ProductName:"APZ01 - Folitrax Tab 5 (APZ01)",MRP:105,ProductId:"0196358d-91a8-7791-8dd3-40aa95a3503a"},
+			{ProductName:"EHL01 - Solvin Nasal Spray",MRP:78,ProductId:"0196358d-91a8-7538-9e41-b9dfa9adee94"},
+			{ProductName:"FND05 - Zerodol SP 100/15/325",MRP:122,ProductId:"0196358d-91a8-7367-bbd8-3d8035ab0630"}
+		];
+
+		const allCustomers = [
+			{CustomerName:"DF09 - DR Distributer",CustomerId:"019634ca-56af-7a65-9e52-dd979de40995"},
+			{CustomerName:"V097 - Vigneya Industries",CustomerId:"019634ca-56b0-77d6-8fee-6c10689bccc8"},
+			{CustomerName:"B249 - B. R. Enterprises",CustomerId:"019634ca-56b0-782b-9bcc-f63c3f1daf28"},
+			{CustomerName:"V069 - Veena EnterPrises",CustomerId:"019634ca-56b0-78c9-b582-16864c11f154"},
+			{CustomerName:"T146 - Tropical Nortec",CustomerId:"019634ca-56b0-795a-81b2-aeb218594986"},
+			{CustomerName:"U014 - Ukay Industries",CustomerId:"019634ca-56b0-7b3e-b405-76192a281147"},
+			{CustomerName:"S436 - Shreeji IMPEX",CustomerId:"019634ca-56b0-7c87-acb8-fb57cd3fa606"},
 		]
 		const productList = [];
 		document.getElementById('datePicker').valueAsDate = new Date()
@@ -85,15 +98,24 @@
 			const productName = document.getElementById("productSearch").value;
 			const qtyInput = document.querySelector('input[type="number"]');
 			const qty = parseInt(qtyInput.value);
-			const customerId = document.getElementById("CustomerId").value;
-			const purchaseId = document.getElementById("PurchaseId").value;
+			const customerName = document.getElementById("customerId").value;
+			const purchaseId = document.getElementById("purchaseId").value;
 			const orderDate = document.getElementById("datePicker").value;
-
+			if(!customerName || !purchaseId){
+				alert("Invalid Data!");
+				return;
+			}
 
 			const selectedProduct = allProducts.find(p => p.ProductName === productName);
+			const selectedCustomer = allCustomers.find(p=>p.CustomerName === customerName);
 
 			if (!selectedProduct) {
 				alert("Product not found!");
+				return;
+			}
+
+			if (!selectedCustomer) {
+				alert("Customer not found!");
 				return;
 			}
 
@@ -103,13 +125,14 @@
 			}
 
 			const productEntry = {
-				CustomerId:customerId,
-				OrderId:purchaseId,
+				CustomerId:selectedCustomer.CustomerId,
+				PurchaseId:purchaseId,
 				OrderDate:orderDate,
+				ProductId:selectedProduct.ProductId,
 				ProductName: selectedProduct.ProductName,
-				MRP: selectedProduct.MRP,
 				Qty: qty,
-				Total: selectedProduct.MRP * qty
+				Total: selectedProduct.MRP * qty,
+				MRP: selectedProduct.MRP
 			};
 
 			productList.push(productEntry);
@@ -117,7 +140,6 @@
 			
 			document.getElementById("ProductListJson").value = JSON.stringify(productList);
 
-			// Clear inputs
 			document.getElementById("productSearch").value = "";
 			qtyInput.value = "";
 
