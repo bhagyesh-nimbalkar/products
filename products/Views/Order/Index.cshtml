@@ -69,6 +69,39 @@
 		</div>
 	</div>
 	</form>
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">Update Product</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+					<div class="modal-body">
+						<div>
+							<label>Product</label>
+							<input type="text" class="form-control" id="ModalProduct" readonly>
+						</div>
+						<div>
+							<label>MRP</label>
+							<input type="number" class="form-control" id="ModalMRP" name="MRP" readonly>
+						</div>
+						<div>
+							<label>Qty</label>
+							<input onkeyup="handleQtyChange()" type="number" class="form-control" name="Qty" id="ModalQty">
+						</div>
+						<div>
+							<label>Total</label>
+							<input type="text" class="form-control" id="ModalTotal" readonly>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					     <button type="button" class="btn btn-primary" onclick="saveChanges()" data-bs-dismiss="modal">Save changes</button>
+					</div>
+			</div>
+
+		</div>
+	</div>
 </div>
 
 @section Scripts {
@@ -148,7 +181,7 @@
 
 		function renderProductTable() {
 			let html = `<table class="table table-bordered mt-3">
-				<thead><tr><th>Product</th><th>MRP</th><th>Qty</th><th>Total</th></tr></thead>
+				<thead><tr><th>Product</th><th>MRP</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead>
 				<tbody>`;
 			productList.forEach(p => {
 				html += `<tr>
@@ -156,10 +189,68 @@
 					<td>₹${p.MRP}</td>
 					<td>${p.Qty}</td>
 					<td>₹${p.Total}</td>
+					<td><button type="button"
+									onclick="window.ChangeModal(
+									${p.Qty},
+									'${p.ProductName}',
+									${p.MRP})"
+									data-bs-toggle="modal"
+											data-bs-target="#exampleModal">
+										<i class="bi bi-pencil-square text-primary fw-bold" style="cursor:pointer;"></i>
+					</button>
+					<button type="button" onclick="window.deleteProduct('${p.ProductName}')"><i class="bi bi-trash text-danger fw-bold" style="cursor:pointer;"></i></button>
+					</td>
 				</tr>`;
 			});
 			html += "</tbody></table>";
 			document.getElementById("productTable").innerHTML = html;
+		}
+		window.deleteProduct = function(ProductName){
+
+			const product = productList.findIndex(p=>p.ProductName===ProductName);
+
+			productList.splice(product,1);
+			
+			document.getElementById("ProductListJson").value = JSON.stringify(productList);
+
+			renderProductTable();
+		}
+		window.saveChanges = function(){
+			const modalproductName = document.getElementById("ModalProduct");
+			const modalmrp =  document.getElementById("ModalMRP");
+			const modalqty =  document.getElementById("ModalQty");
+			const modaltotal =  document.getElementById("ModalTotal");
+
+			const product = productList.find(p=>p.ProductName===modalproductName.value);
+			product.Qty = parseInt(modalqty.value);
+			product.Total = parseInt(modaltotal.value);
+
+			document.getElementById("ProductListJson").value = JSON.stringify(productList);
+
+			renderProductTable();
+		}
+
+		window.ChangeModal = function(Qty,ProductName,Mrp){
+			console.log(Qty,ProductName,Mrp);
+			const modalproductName = document.getElementById("ModalProduct");
+			const modalmrp =  document.getElementById("ModalMRP");
+			const modalqty =  document.getElementById("ModalQty");
+			const modaltotal =  document.getElementById("ModalTotal");
+
+			modalproductName.value = ProductName;
+			modalmrp.value=Mrp;
+			modalqty.value=Qty;
+			modaltotal.value=Qty*Mrp;
+		}
+
+		window.handleQtyChange = function(e){
+			const modalmrp =  document.getElementById("ModalMRP");
+			const modalqty =  document.getElementById("ModalQty");
+			const modaltotal =  document.getElementById("ModalTotal");
+
+			if(modalqty.value==null) return;
+
+			modaltotal.value = modalmrp.value*modalqty.value;
 		}
 	</script>
 }

@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using products.Data;
 using products.Models;
 
@@ -73,6 +72,15 @@ namespace products.Controllers
         [HttpPost("submit")]
         public IActionResult SubmitOrder(string ProductListJson,string OrderId)
         {
+
+            List<OrderItem> orderitemDetails = _context.OrderItems.Where(p => p.OrderId == Guid.Parse(OrderId)).ToList();
+
+            foreach (var obj in orderitemDetails)
+            {
+                DeleteOrderItem(obj.OrderItemId.ToString(), OrderId);
+            }
+
+
             if (string.IsNullOrEmpty(ProductListJson))
             {
                 return BadRequest("No products received.");
@@ -81,11 +89,12 @@ namespace products.Controllers
             var productList = JsonSerializer.Deserialize<List<ProductDetails>>(ProductListJson);
 
 
-            if (productList == null) return BadRequest("No products received.");
+            if (productList == null || productList.Count()==0) return BadRequest("No products received.");
             string CustomerId = productList[0].CustomerId;
             string PurchaseId = productList[0].PurchaseId;
             DateOnly orderDate = DateOnly.Parse(productList[0].OrderDate.ToString());
 
+            productList.RemoveAt(0);
             Order existingOrder = _context.Orders.FirstOrDefault(p => p.OrderId == Guid.Parse(OrderId));
 
             if (existingOrder != null)
@@ -96,6 +105,7 @@ namespace products.Controllers
 
                 _context.Orders.Update(existingOrder);
             }
+
             _context.OrderItems.AddRange(productList.Select(p => new OrderItem
             {
                 OrderId =Guid.Parse(OrderId),

@@ -7,37 +7,38 @@
 		</a>
 		<h5 class="mt-2 fw-bolder">Update Order</h5>
 	</div>
-	</div>
-		<div class="card shadow-sm">
-			<div class="card-body p-0">
-				<div class="p-3">
-					<div class="d-flex flex-column gap-3">
-						<div>
-							<h3>Customer Details</h3>
-						</div>
-						<div class="d-flex gap-5">
-							<div>
-								<label>Customer ID & Name</label>
-								<input value="@Model.CustomerName" type="text" class="form-control" list="customerOptions" id="customerId" name="productSearch" placeholder="Customer ID & Name">
-								<datalist id="customerOptions">
-									@foreach (var obj in Model.customerlist)
-									{
-										<option value="@obj.CustomerName"></option>
-									}
-								</datalist>
-							</div>
-							<div>
-								<label>Purchase order no (PO)</label>
-								<input value="@Model.PurchaseOrderNo" type="text" class="form-control" id="purchaseId" placeholder="Purchase order no (PO)">
-							</div>
-							<div>
-								<label>Purchase order date</label>
-								<input value="@Model.OrderDate" type="date" class="form-control" id="datePicker" placeholder="name@example.com">
-							</div>
-						</div>
+</div>
+<div class="card shadow-sm">
+	<div class="card-body p-0">
+		<div class="p-3">
+			<div class="d-flex flex-column gap-3">
+				<div>
+					<h3>Customer Details</h3>
+				</div>
+				<div class="d-flex gap-5">
+					<div>
+						<label>Customer ID & Name</label>
+						<input value="@Model.CustomerName" type="text" class="form-control" list="customerOptions" id="customerId" name="productSearch" placeholder="Customer ID & Name">
+						<datalist id="customerOptions">
+							@foreach (var obj in Model.customerlist)
+							{
+								<option value="@obj.CustomerName"></option>
+							}
+						</datalist>
+					</div>
+					<div>
+						<label>Purchase order no (PO)</label>
+						<input value="@Model.PurchaseOrderNo" type="text" class="form-control" id="purchaseId" placeholder="Purchase order no (PO)">
+					</div>
+					<div>
+						<label>Purchase order date</label>
+						<input value="@Model.OrderDate" type="date" class="form-control" id="datePicker" placeholder="name@example.com">
 					</div>
 				</div>
-				<hr />
+			</div>
+		</div>
+		<hr />
+		<input type="hidden" id="OrderItemListDetails" value='@Html.Raw(Json.Serialize(Model.OrderItemList))' />
 				<div class="p-3 d-flex gap-lg-5">
 					<div>
 						<h3>Product Details</h3>
@@ -74,89 +75,72 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var obj in Model.OrderItemList)
-						{
-							<tr>
-								<td>@Model.productlist.Find(p=>p.ProductId==obj.ProductId).ProductName</td>
-								<td>@Model.productlist.Find(p=>p.ProductId==obj.ProductId).Mrp</td>
-								<td>@obj.Qty</td>
-								<td>@obj.Total</td>
-								<td class="d-flex gap-5">
-									<div>
-									<button type="button"
-							        onclick="window.ChangeModal(
-									'@obj.OrderItemId',
-									@obj.Qty,
-									'@Model.productlist.Find(p => p.ProductId == obj.ProductId).ProductName',
-									@Model.productlist.Find(p => p.ProductId == obj.ProductId).Mrp)"
-											data-bs-toggle="modal"
-											data-bs-target="#exampleModal">
-										<i class="bi bi-pencil-square text-primary fw-bold" style="cursor:pointer;"></i>
-									</button>
-
-									</div>
-									<form asp-action="DeleteOrderItem" method="post">
-										<input type="hidden" value="@obj.OrderItemId" name="OrderItemId"/>
-										<input type="hidden" value="@obj.OrderId" name="OrderId" />
-									    <button type="submit"><i class="bi bi-trash text-danger fw-bold" style="cursor:pointer;"></i></button>
-									</form></td>
-							</tr>
-						}
 					</tbody>
 				</table>
-				</div>
-				<div id="productTable" class="px-5">
-				</div>
-		<input type="hidden" id="ProductId" name="ProductId" value="" />
-				<form asp-action="SubmitOrder" method="post">
-					<input type="hidden" value="@Model.OrderId" name="OrderId" />
-					<input type="hidden" id="ProductListJson" name="ProductListJson" />
-					<button type="submit" class="btn btn-success mt-3 ms-5 mb-5">Update</button>
-				</form>
 			</div>
+		<form asp-action="SubmitOrder" method="post">
+			<input type="hidden" value="@Model.OrderId" name="OrderId" />
+			<input type="hidden" id="ProductListJson" name="ProductListJson" />
+			<button type="submit" onclick="message()" class="btn btn-success mt-3 ms-5 mb-5">Update</button>
+		</form> 
 			<!-- Modal -->
-			<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h1 class="modal-title fs-5" id="exampleModalLabel">Update Product</h1>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<form asp-action="UpdateOrderItem"  method="post">
-						<div class="modal-body">
-							<div>
-								<label>Product</label>
-								<input  type="text" class="form-control" id="ModalProduct" readonly>
-							</div>
-							<div>
-								<label>MRP</label>
-								<input  type="number" class="form-control" id="ModalMRP" name="MRP" readonly>
-							</div>
-							<div>
-								<label>Qty</label>
-								<input onkeyup="handleQtyChange()" type="number" class="form-control" name="Qty" id="ModalQty">
-							</div>
-							<div>
-								<label>Total</label>
-								<input type="text" class="form-control" id="ModalTotal" readonly>
-							</div>
-							<input type="hidden" name="OrderItemId" id="ModalOrderItemId"/>
-						   <input type="hidden" name="OrderId" value="@Model.OrderId"/>
+		<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Update Product</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-							<button type="submit" class="btn btn-primary">Save changes</button>
+					<div class="modal-body">
+						<div>
+							<label>Product</label>
+							<input type="text" class="form-control" id="ModalProduct" readonly>
 						</div>
-						</form>
+						<div>
+							<label>MRP</label>
+							<input type="number" class="form-control" id="ModalMRP" name="MRP" readonly>
+						</div>
+						<div>
+							<label>Qty</label>
+							<input onkeyup="handleQtyChange()" type="number" class="form-control" name="Qty" id="ModalQty">
+						</div>
+						<div>
+							<label>Total</label>
+							<input type="text" class="form-control" id="ModalTotal" readonly>
+						</div>
 					</div>
-					
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" onclick="saveChanges()" data-bs-dismiss="modal">Save changes</button>
+					</div>
 				</div>
+
 			</div>
+		</div>
 		</div>
 </div>
 
 @section Scripts {
 	<script>
+		const updatelistTag = document.getElementById("OrderItemListDetails").value;
+		const updateList = JSON.parse(updatelistTag);
+		const productList = [];
+		for(var obj of updateList){
+			console.log(obj);
+			const productEntry = {
+				CustomerId:obj.order.customer.customerId,
+				PurchaseId:obj.order.purchaseOrderNo,
+				OrderDate:obj.order.purchaseOrderDate,
+				ProductId:obj.product.productId,
+				ProductName:obj.product.productName,
+				Qty: obj.qty,
+				Total: obj.qty*obj.product.mrp,
+				MRP: obj.product.mrp
+			};
+
+			productList.push(productEntry);
+		}
+		renderProductTable();
 		const allProducts = [
 			{ProductName:"BRZ06 - Revelol 25H Tablets",MRP:83,ProductId:"0196358d-9171-711c-a649-8e0c1174012b"},
 			{ProductName:"GOY03 - 100 Tablets",MRP:250,ProductId:"0196358d-91a8-7ac5-9616-e40ec8433836"},
@@ -176,6 +160,38 @@
 			{CustomerName:"U014 - Ukay Industries",CustomerId:"019634ca-56b0-7b3e-b405-76192a281147"},
 			{CustomerName:"S436 - Shreeji IMPEX",CustomerId:"019634ca-56b0-7c87-acb8-fb57cd3fa606"},
 		]
+
+		const message = function(){
+			const productName = document.getElementById("productSearch").value;
+			const qtyInput = document.querySelector('input[type="number"]');
+			const qty = parseInt(qtyInput.value);
+			const customerName = document.getElementById("customerId").value;
+			const purchaseId = document.getElementById("purchaseId").value;
+			const orderDate = document.getElementById("datePicker").value;
+			if(!customerName || !purchaseId){
+				alert("Invalid Data!");
+				return;
+			}
+
+			const selectedProduct = allProducts.find(p => p.ProductName === productName);
+			const selectedCustomer = allCustomers.find(p=>p.CustomerName === customerName);
+
+			const productEntry = {
+				CustomerId:selectedCustomer.CustomerId,
+				PurchaseId:purchaseId,
+				OrderDate:orderDate,
+				ProductId:'',
+				ProductName: '',
+				Qty: 0,
+				Total: 0,
+				MRP: 0
+			};
+
+			productList.unshift(productEntry);
+			document.getElementById("ProductListJson").value = JSON.stringify(productList);
+			console.log("MESSAGE");
+		}
+
 		window.handleQtyChange = function(e){
 			const modalmrp =  document.getElementById("ModalMRP");
 			const modalqty =  document.getElementById("ModalQty");
@@ -185,21 +201,45 @@
 
 			modaltotal.value = modalmrp.value*modalqty.value;
 		}
-		window.ChangeModal = function(OrderItemId,Qty,ProductName,Mrp){
+		window.ChangeModal = function(Qty,ProductName,Mrp){
+			console.log(Qty,ProductName,Mrp);
 			const modalproductName = document.getElementById("ModalProduct");
 			const modalmrp =  document.getElementById("ModalMRP");
 			const modalqty =  document.getElementById("ModalQty");
 			const modaltotal =  document.getElementById("ModalTotal");
-			const modalOID =  document.getElementById("ModalOrderItemId");
 
 			modalproductName.value = ProductName;
 			modalmrp.value=Mrp;
 			modalqty.value=Qty;
 			modaltotal.value=Qty*Mrp;
-			modalOID.value = OrderItemId;
 		}
-		const productList = [];
+
+		window.saveChanges = function(){
+			const modalproductName = document.getElementById("ModalProduct");
+			const modalqty =  document.getElementById("ModalQty");
+			const modaltotal =  document.getElementById("ModalTotal");
+
+			const product = productList.find(p=>p.ProductName===modalproductName.value);
+
+			product.Qty = parseInt(modalqty.value);
+			product.Total = parseInt(modaltotal.value);
+			renderProductTable();
+			
+			document.getElementById("ProductListJson").value = JSON.stringify(productList);
+		}
+
 		document.getElementById('datePicker').valueAsDate = new Date()
+		window.deleteProduct = function(ProductName){
+
+			const product = productList.findIndex(p=>p.ProductName===ProductName);
+
+			productList.splice(product,1);
+
+			document.getElementById("ProductListJson").value = JSON.stringify(productList);
+
+			renderProductTable();
+		}
+
 		window.AddProduct = function() {
 			const productName = document.getElementById("productSearch").value;
 			const qtyInput = document.querySelector('input[type="number"]');
@@ -249,14 +289,13 @@
 			document.getElementById("productSearch").value = "";
 			qtyInput.value = "";
 
+			
 			renderProductTable();
 		}
 
 		function renderProductTable() {
-			let html = `
-			<h4>New Orders</h4>
-			<table class="table table-bordered mt-3">
-				<thead><tr><th>Product</th><th>MRP</th><th>Qty</th><th>Total</th></tr></thead>
+			let html = `<table class="table table-bordered mt-3">
+				<thead><tr><th>Product</th><th>MRP</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead>
 				<tbody>`;
 			productList.forEach(p => {
 				html += `<tr>
@@ -264,10 +303,21 @@
 					<td>₹${p.MRP}</td>
 					<td>${p.Qty}</td>
 					<td>₹${p.Total}</td>
+					<td><button type="button"
+									onclick="window.ChangeModal(
+									${p.Qty},
+									'${p.ProductName}',
+									${p.MRP})"
+									data-bs-toggle="modal"
+											data-bs-target="#exampleModal">
+										<i class="bi bi-pencil-square text-primary fw-bold" style="cursor:pointer;"></i>
+					</button>
+					<button type="button" onclick="window.deleteProduct('${p.ProductName}')"><i class="bi bi-trash text-danger fw-bold" style="cursor:pointer;"></i></button>
+					</td>
 				</tr>`;
 			});
 			html += "</tbody></table>";
-			document.getElementById("productTable").innerHTML = html;
+			document.getElementById("pastProducts").innerHTML = html;
 		}
 	</script>
 }

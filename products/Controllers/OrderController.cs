@@ -34,13 +34,13 @@ namespace products.Controllers
         {
             if (string.IsNullOrEmpty(ProductListJson))
             {
-                return BadRequest("No products received.");
+                return RedirectToAction("Index", "Home");
             }
 
             var productList = JsonSerializer.Deserialize<List<ProductDetails>>(ProductListJson);
 
 
-            if (productList==null) return BadRequest("No products received.");
+            if (productList==null || productList.Count()==0) return RedirectToAction("Index", "Home");
             string CustomerId = productList[0].CustomerId;
             string PurchaseId = productList[0].PurchaseId;
             DateOnly orderDate = DateOnly.Parse(productList[0].OrderDate.ToString());
